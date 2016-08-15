@@ -62,6 +62,7 @@ var app = {
       success: function(data) {
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
+        console.log('HOWDY');
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
