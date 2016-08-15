@@ -54,6 +54,7 @@ var requestHandler = function(request, response) {
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   var endpoint = request.url.substring(0, 17);
+  console.log(endpoint);
   
   if (endpoint !== '/classes/messages') {
     statusCode = 404;
@@ -62,7 +63,6 @@ var requestHandler = function(request, response) {
   }
 
   if (request.method === 'GET') {
-    statusCode = 404;
     response.end(JSON.stringify(storage));
   }
 
@@ -75,8 +75,7 @@ var requestHandler = function(request, response) {
     }).on('end', function() {
       storage.results.push(JSON.parse(temp));
     });
-    // console.log(request);
-    // console.log('we are posting up');
+
   }
 
   // See the note below about CORS headers.
