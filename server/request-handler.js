@@ -28,6 +28,11 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+
+var storage = {
+  results: []
+};
+
 var requestHandler = function(request, response) {  
   // Request and Response come from node's http module.
   //
@@ -49,13 +54,21 @@ var requestHandler = function(request, response) {
   var statusCode = 200;
   
   if (request.method === 'GET') {
-    response.end(JSON.stringify({results: []}));
+    console.log(storage);
+    response.end(JSON.stringify(storage));
   }
 
   if (request.method === 'POST') {
+    var temp = '';
     statusCode = 201;
-
-    console.log(request.url);
+    // storage.results.push()
+    request.on('data', function(chunk) {
+      temp += chunk;
+    }).on('end', function() {
+      storage.results.push(JSON.parse(temp));
+      console.log('ENDED', temp);
+    });
+    // console.log(request);
     // console.log('we are posting up');
   }
 
