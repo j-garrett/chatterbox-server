@@ -15,9 +15,8 @@ var requestHandler = function(request, response) {
 
   var statusCode = 200;
   var headers = defaultCorsHeaders;
-  var endpoint = request.url.substring(0, 17);
   
-  if (endpoint !== '/classes/messages') {
+  if (request.url !== '/classes/messages' && request.url !== '/classes/room') {
     statusCode = 404;
     response.writeHead(statusCode, headers);
     response.end();
@@ -33,8 +32,12 @@ var requestHandler = function(request, response) {
     // storage.results.push()
     request.on('data', function(chunk) {
       temp += chunk;
-    }).on('end', function() {
+      console.log(chunk);
+    });
+
+    request.on('end', function() {
       storage.results.push(JSON.parse(temp));
+
     });
 
   }
