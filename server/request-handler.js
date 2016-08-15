@@ -52,9 +52,17 @@ var requestHandler = function(request, response) {
 
   // The outgoing status.
   var statusCode = 200;
+  var headers = defaultCorsHeaders;
+  var endpoint = request.url.substring(0, 17);
   
+  if (endpoint !== '/classes/messages') {
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+
   if (request.method === 'GET') {
-    console.log(storage);
+    statusCode = 404;
     response.end(JSON.stringify(storage));
   }
 
@@ -66,14 +74,12 @@ var requestHandler = function(request, response) {
       temp += chunk;
     }).on('end', function() {
       storage.results.push(JSON.parse(temp));
-      console.log('ENDED', temp);
     });
     // console.log(request);
     // console.log('we are posting up');
   }
 
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
 
   // Tell the client we are sending them plain text.
   //
