@@ -47,8 +47,16 @@ var requestHandler = function(request, response) {
 
   // The outgoing status.
   var statusCode = 200;
+  
   if (request.method === 'GET') {
-    console.log('HEY WE ARE HERE');
+    response.end(JSON.stringify({results: []}));
+  }
+
+  if (request.method === 'POST') {
+    statusCode = 201;
+
+    console.log(request.url);
+    // console.log('we are posting up');
   }
 
   // See the note below about CORS headers.
