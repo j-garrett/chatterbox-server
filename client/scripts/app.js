@@ -54,7 +54,6 @@ var app = {
   },
 
   fetch: function(animate) {
-    console.log('3 seconds passssssed' + ' poop ');
     $.ajax({
       url: app.server,
       type: 'GET',

@@ -7,14 +7,14 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var storage = {
-  results: [{username: 'Dan', text: 'Banana!', objectId: 0 }, {username: 'jon', text: 'Gorilla!', objectId: 1 }]
-};
+// var storage = {
+//   results: [{username: 'Dan', text: 'Banana!', objectId: 0 }, {username: 'jon', text: 'Gorilla!', objectId: 1 }]
+// };
 var objectId = 1;
 
 var requestHandler = function(req, res) {  
 
-  // console.log(req.url, req);
+  console.log(req.url);
 
   if (req.url === '/' || req.url.indexOf('/?username=') !== -1) { //req.url has the pathname, check if it conatins '.html'  || req.url === '/?username=' + username
 
@@ -69,43 +69,57 @@ var requestHandler = function(req, res) {
     });
   }
 
+
   if (req.url.indexOf('/classes/messages') !== -1 || req.url.indexOf('/classes/room') !== -1) {
     
     var statusCode = 200;
     var headers = defaultCorsHeaders;
-    headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/json'; 
 
     if (req.method === 'GET') {
-      res.writeHead(statusCode, headers);    
-      res.end(JSON.stringify(storage));
+
+      fs.readFile(__dirname + '/../storage.txt', function (err, data) {
+        if (err) { console.log(err); }
+        var outgoing = JSON.parse(data);
+        res.writeHead(statusCode, headers);
+        res.write(JSON.stringify(outgoing));
+        res.end();
+      });
+
     }
 
     if (req.method === 'POST') {
 
       var temp = '';
       statusCode = 201;
+      res.writeHead(statusCode, headers);
 
       req.on('data', function(chunk) {
         temp += chunk;
       });
 
       req.on('end', function() {
-        fs.appendFile('storage.txt', temp, (err) => {
-          if (err) { console.log( err ); }
-        });
         var data = JSON.parse(temp);
-        console.log(data);
         data.objectId = ++objectId;
-        storage.results.push(data);
+        // console.log(data);
+        fs.readFile(__dirname + '/../storage.txt', (err, storage) => {
+          var newStorage = JSON.parse(storage);
+          newStorage.results.push(data);
+          console.log(newStorage);
+          // JSON.parse(storage).results.push(data);
+          fs.writeFile('storage.txt', JSON.stringify(newStorage), (err) => {
+            if (err) { console.log( err ); }
+          });
+        });
       });
 
     }
 
-    headers['Content-Type'] = 'text/plain';
+    // headers['Content-Type'] = 'text/plain';
 
-    res.writeHead(statusCode, headers);
+    // res.writeHead(statusCode, headers);
 
-    res.end(JSON.stringify(storage));
+    // res.end(JSON.stringify(storage));
   }
 
 };
