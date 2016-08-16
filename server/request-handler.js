@@ -8,14 +8,16 @@ var defaultCorsHeaders = {
 
 
 var storage = {
-  results: []
+  results: [{username: 'Dan', text: 'Banana!', objectId: 0 }, {username: 'jon', text: 'Gorilla!', objectId: 1 }]
 };
+var objectId = 1;
 
 var requestHandler = function(request, response) {  
 
   var statusCode = 200;
   var headers = defaultCorsHeaders;
-  
+  headers['Content-Type'] = 'application/json';
+
   if (request.url !== '/classes/messages' && request.url !== '/classes/room') {
     statusCode = 404;
     response.writeHead(statusCode, headers);
@@ -23,26 +25,28 @@ var requestHandler = function(request, response) {
   }
 
   if (request.method === 'GET') {
+    response.writeHead(statusCode, headers);    
     response.end(JSON.stringify(storage));
   }
 
   if (request.method === 'POST') {
+
     var temp = '';
     statusCode = 201;
-    // storage.results.push()
+
     request.on('data', function(chunk) {
       temp += chunk;
-      console.log(chunk);
     });
 
     request.on('end', function() {
-      storage.results.push(JSON.parse(temp));
-
+      var data = JSON.parse(temp);
+      data.objectId = ++objectId;
+      storage.results.push(data);
     });
 
   }
 
-  headers['Content-Type'] = 'text/plain';
+  // headers['Content-Type'] = 'text/plain';
 
   response.writeHead(statusCode, headers);
 
