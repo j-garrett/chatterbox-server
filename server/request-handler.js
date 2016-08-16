@@ -1,5 +1,4 @@
 var fs = require('fs');
-// var index = './client/index.html';
 
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
@@ -14,9 +13,10 @@ var storage = {
 var objectId = 1;
 
 var requestHandler = function(req, res) {  
-  console.log(req.url);
 
-  if (req.url === '/') { //req.url has the pathname, check if it conatins '.html'
+  // console.log(req.url, req);
+
+  if (req.url === '/' || req.url.indexOf('/?username=') !== -1) { //req.url has the pathname, check if it conatins '.html'  || req.url === '/?username=' + username
 
     fs.readFile(__dirname + '/../client/index.html', function (err, data) {
       if (err) { console.log(err); }
@@ -27,9 +27,20 @@ var requestHandler = function(req, res) {
 
   }
 
-  if (req.url.indexOf('.js') !== -1) { //req.url has the pathname, check if it conatins '.js'
+  if (req.url.indexOf('app.js') !== -1) { //req.url has the pathname, check if it conatins '.js'
 
     fs.readFile(__dirname + '/../client/scripts/app.js', function (err, data) {
+      if (err) { console.log(err); }
+      res.writeHead(200, {'Content-Type': 'text/javascript'});
+      res.write(data);
+      res.end();
+    });
+
+  }
+
+  if (req.url.indexOf('config.js') !== -1) { //req.url has the pathname, check if it conatins '.js'
+
+    fs.readFile(__dirname + '/../client/env/config.js', function (err, data) {
       if (err) { console.log(err); }
       res.writeHead(200, {'Content-Type': 'text/javascript'});
       res.write(data);
@@ -58,8 +69,8 @@ var requestHandler = function(req, res) {
     });
   }
 
-  if (req.url === '/classes/messages' || req.url === '/classes/room' ) {
-    console.log('arrived at poop station');
+  if (req.url.indexOf('/classes/messages') !== -1 || req.url.indexOf('/classes/room') !== -1) {
+    
     var statusCode = 200;
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = 'application/json';
@@ -79,7 +90,11 @@ var requestHandler = function(req, res) {
       });
 
       req.on('end', function() {
+        fs.appendFile('storage.txt', temp, (err) => {
+          if (err) { console.log( err ); }
+        });
         var data = JSON.parse(temp);
+        console.log(data);
         data.objectId = ++objectId;
         storage.results.push(data);
       });
@@ -92,40 +107,6 @@ var requestHandler = function(req, res) {
 
     res.end(JSON.stringify(storage));
   }
-
-  // if (req.url !== '/classes/messages' && req.url !== '/classes/room') {
-  //   statusCode = 404;
-  //   res.writeHead(statusCode, headers);
-  //   res.end();
-  // }
-
-  // if (req.method === 'GET') {
-  //   res.writeHead(statusCode, headers);    
-  //   res.end(JSON.stringify(storage));
-  // }
-
-  // if (req.method === 'POST') {
-
-  //   var temp = '';
-  //   statusCode = 201;
-
-  //   req.on('data', function(chunk) {
-  //     temp += chunk;
-  //   });
-
-  //   req.on('end', function() {
-  //     var data = JSON.parse(temp);
-  //     data.objectId = ++objectId;
-  //     storage.results.push(data);
-  //   });
-
-  // }
-
-  // headers['Content-Type'] = 'text/plain';
-
-  // res.writeHead(statusCode, headers);
-
-  // res.end(JSON.stringify(storage));
 
 };
 
